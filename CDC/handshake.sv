@@ -6,11 +6,11 @@ module handshake #(
   input  wire wr_clk,
   input  wire rd_clk,
   input  wire rst,
-  Axis.Slave   wr_stream,
-  Axis.Master  rd_stream
+  Axis.Slave  wr_stream,
+  Axis.Master rd_stream
 );
 
-localparam int DELAY_LINE=3;
+localparam int DELAY_LINE=2;
 
 // rd clk domain
 logic [BITWIDTH-1:0] buff [DELAY_LINE-1:0];
@@ -18,10 +18,10 @@ logic [BITWIDTH-1:0] feed;
 
 // assigned on wr_clk, read on rd_clk
 logic [BITWIDTH-1:0] hold;
-logic src_send;
+logic src_send, src_send_sync;
 
 // assigned on rd_clk, read on wr_clk
-logic dest_rcv;
+logic dest_rcv, dest_rcv_sync;
 
 // ready to write when dest rcv the data
 assign wr_stream.ready = dest_rcv_sync;
@@ -31,6 +31,8 @@ typedef enum {
   IDLE,
   CDC,
   VALID,
+  SHAKE,
+  FILLING_BUFF
 } State_t;
 State_t rd_state, next_rd_state;
 State_t wr_state, next_wr_state;
@@ -55,7 +57,7 @@ always_comb begin
   wr_stream.ready = 'h0;
   src_send = 'h0;
   
-  case(wr_state) begin
+  case(wr_state)
     IDLE: begin
 	  // waiting for send req
 	  next_wr_state = (wr_stream.ok) ? CDC : IDLE;
@@ -71,8 +73,8 @@ always_comb begin
 	  // send goes low until rcv signal goes back low
 	  next_wr_state = (~dest_rcv_sync) ? IDLE : IDLE;
 	  src_send = 'h0;	  
-    end   
-  end 
+    end
+  endcase
 end
 
 // multiflop synchronizer for src send
@@ -100,14 +102,14 @@ always_comb begin
 	FILLING_BUFF: begin
 	  // push hold to buffer
 	  // wait for buffer to fill and all be equal
-      next_rd_state = (~(xor(buff[DELAY_LINE-1:0]))) ? VALID : FILLING_BUFF;
 	  feed = hold;
+      next_rd_state = (~(buff[1] - buff[0])) ? VALID : FILLING_BUFF;
 	end
 	VALID: begin
 	  // buffer data is valid in rd clk domain
 	  // wait for ready to go true so value gets read
 	  next_rd_state = (rd_stream.ok) ? IDLE : VALID;
-      rd_stream.valid = ~(xor(buff[DELAY_LINE-1:0]));
+      rd_stream.valid = ~(^(buff[DELAY_LINE-1:0]));
       rd_stream.data = buff[DELAY_LINE-1];
     end
 	SHAKE: begin
@@ -116,6 +118,7 @@ always_comb begin
 	  // wait for wr domain to show it received rcv signal by dropping send back to 0
 	  next_rd_state = (~src_send_sync) ? IDLE : SHAKE;
 	  dest_rcv = 'h1;
+	end
   endcase
 end
 

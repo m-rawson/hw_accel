@@ -1,15 +1,12 @@
 // Interfaces
 
-interface Mem
-#( 
-)(
-);
-
-modport Master ();
-
-modport Slave ();
-
-endinterface
+//interface Mem
+//#( 
+//)(
+//);
+//modport Master ();
+//modport Slave ();
+//endinterface
 
 // Axi lite interface
 interface Axi
@@ -21,10 +18,6 @@ interface Axi
   wire aclk,
   wire aresetn
 );
-
-// Bus
-wire aclk;
-wire aresetn;
 
 // Wire Address
 wire [31:0] awaddr;
@@ -112,7 +105,7 @@ endinterface
 // Axi Stream interface
 interface Axis
 #(
-  parameter type = logic[0:0];
+  parameter type D_t = logic[0:0]
 )();
 
 wire ready;

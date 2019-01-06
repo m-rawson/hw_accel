@@ -18,7 +18,7 @@ Axi  postproc_data_port(.aclk(mem_bus.aclk), .aresetn(mem_bus.aresetn));
 Axis preproc_accel();
 Axis postproc_accel();
 
-wire accel_core_pkg::MMAP_ADDR_T mmap [accel_core_pkg::MMAP_DEPTH-1:0];
+accel_core_pkg::MMAP_T mmap [accel_core_pkg::MMAP_DEPTH-1:0];
 
 accel_core_mmap accel_core_mmap_i (
   .core_ctrl,

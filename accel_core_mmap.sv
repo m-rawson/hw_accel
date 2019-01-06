@@ -3,7 +3,7 @@
 
 module accel_core_mmap (
   Axi.Slave core_ctrl,
-  output logic accel_core_pkg::MMAP_ADDR_T mmap [accel_core_pkg::MMAP_DEPTH-1:0]
+  output accel_core_pkg::MMAP_T mmap [accel_core_pkg::MMAP_DEPTH-1:0]
 );
 
 always_ff @(posedge core_ctrl.aclk) begin
@@ -24,14 +24,14 @@ always_ff @(posedge core_ctrl.aclk) begin
 	
 	// Read is valid iff I am ready for addr, addr is valid, and master ready for data
     if(core_ctrl.araddr < accel_core_pkg::MMAP_DEPTH) begin
-      core_ctrl.rdata  <= mmap['{core_ctrl.araddr}];
+      core_ctrl.rdata  <= mmap[accel_core_pkg::MMAP_T'{core_ctrl.araddr}];
       core_ctrl.rvalid <= core_ctrl.arready && core_ctrl.arvalid && core_ctrl.rready;
     end
 	
 	// Write is valid iff I am ready to rx data, data is valid, addr is valid
 	if(core_ctrl.wready && core_ctrl.awvalid && core_ctrl.wvalid) begin
       if(core_ctrl.awaddr < accel_core_pkg::MMAP_DEPTH) begin
-	    mmap['{core_ctrl.awaddr}] <= core_ctrl.wdata;
+	    mmap[accel_core_pkg::MMAP_T'{core_ctrl.awaddr}] <= core_ctrl.wdata;
         core_ctrl.bresp   <= 'b0; // okay signal
 	  end else begin 
         core_ctrl.bresp   <= 'b1; // out of range signal	    

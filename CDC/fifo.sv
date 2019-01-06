@@ -93,8 +93,8 @@ end
 
 // CDC fifo status single bit signals
 multiflop_sync #(
-  .SYNC_STAGES=2,
-  .BITWIDTH=$clog2(BUFF_DEPTH)
+  .SYNC_STAGES(2),
+  .BITWIDTH($clog2(BUFF_DEPTH))
 ) rd_addr_sync_i (
   .src_rst(rd_rst),
   .src_clk(rd_clk),
@@ -105,8 +105,8 @@ multiflop_sync #(
 );
 
 multiflop_sync #(
-  .SYNC_STAGES=2,
-  .BITWIDTH=$clog2(BUFF_DEPTH)
+  .SYNC_STAGES(2),
+  .BITWIDTH($clog2(BUFF_DEPTH))
 ) wr_addr_sync_i (
   .src_rst(wr_rst),
   .src_clk(wr_clk),
