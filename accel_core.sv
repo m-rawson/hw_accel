@@ -18,14 +18,9 @@ Axi  postproc_data_port(.aclk(mem_bus.aclk), .aresetn(mem_bus.aresetn));
 Axis preproc_accel();
 Axis postproc_accel();
 
-localparam int MMAP_WIDTH = 8;
-localparam int MMAP_DEPTH = 8;
-wire [MMAP_WIDTH-1:0] mmap [MMAP_DEPTH-1:0];
+wire accel_core_pkg::MMAP_ADDR_T mmap [accel_core_pkg::MMAP_DEPTH-1:0];
 
-accel_core_mmap #(
-  .MMAP_DEPTH(MMAP_DEPTH),
-  .MMAP_WIDTH(MMAP_WIDTH)
-) accel_core_mmap_i (
+accel_core_mmap accel_core_mmap_i (
   .core_ctrl,
   .mmap
 );
