@@ -2,17 +2,26 @@
 
 module core_ctrl #(
 )(
-  input  wire stream_clk,
-  input  wire stream_rst,
-  Axi.Master  preproc_mem,
-  Axis.Master preproc_accel,
-  Axi.Master  postproc_mem,
+  // accelerator clk domain
+  input  wire accel_clk,
+  input  wire accel_rst,
   Axis.Slave  postproc_accel,
+  Axis.Master preproc_accel,
+  // mem clk domain
+  input  wire mem_clk,
+  input  wire mem_rst,
+  Axi.Master  accel_mem_bus,
+  // ctrl clk domain
+  input  wire ctrl_clk,
+  input  wire ctrl_rst,
   input [accel_core_pkg::MMAP_WIDTH-1:0] mmap [$bits(accel_core_pkg::MMAP_ADDR)-1:0],
   core_wr2mmap.Master wr_mmap
 );
 
 
+
+
+// CDC from mem clk to accel clk
 accel_buffer #(
   PROG_SUPPORT(),
   PROG_FULL_N(),
@@ -28,10 +37,10 @@ accel_buffer #(
   .input_buff_empty(mmap[accel_core_pkg::INPUT_BUFF_EMPTY][0]),
   .output_buff_full(mmap[accel_core_pkg::OUTPUT_BUFF_FULL][0]),
   .output_buff_empty(mmap[accel_core_pkg::OUTPUT_BUFF_EMPTY][0]),
-  .from_mem,
-  .to_accel,
-  .from_accel,
-  .to_mem
+  .from_mem, // Slave
+  .to_accel, // Master
+  .from_accel, // Slave
+  .to_mem // Master
 );
 
 endmodule

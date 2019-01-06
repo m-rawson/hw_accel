@@ -44,9 +44,9 @@ core_mem core_mem_i (
 );
 
 core_ctrl core_ctrl_i (
-  // stream clk domain
-  .stream_clk,
-  .stream_rst,
+  // accelerator clk domain
+  .accel_clk,
+  .accel_rst,
   .preproc_accel, // Master
   .postproc_accel, // Slave
   // mem clk
