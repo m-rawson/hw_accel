@@ -2,7 +2,7 @@
 
 module mem_ctrl #(
 )(
-  Axi.Slave   preproc_mem,
+  Axi.Master   preproc_mem,
   Axis.Master preproc_accel,
   Axi.Master  postproc_mem,
   Axis.Slave  postproc_accel

@@ -16,7 +16,11 @@ interface Axi
 #(
   parameter int WDATA_WIDTH = 32,
   parameter int RDATA_WIDTH = 32 
-)();
+)(
+  // Bus
+  wire aclk,
+  wire aresetn
+);
 
 // Bus
 wire aclk;
@@ -52,55 +56,55 @@ wire rvalid;
 wire rready;
 
 modport Master (
-// Bus
-output aclk,
-output aresetn,
-// Wire Address
-output awaddr,
-output awvalid,
-input  awready,
-// Wire Data
-output wdata,
-output wvalid,
-input  wready,
-// Write Response
-output bready,
-input  bvalid,
-input  bresp,
-// Read Address
-output araddr,
-output arvalid,
-input  arready,
-// Read data
-input  rdata,
-input  rvalid,
-output rready
+  // Bus
+  output aclk,
+  output aresetn,
+  // Wire Address
+  output awaddr,
+  output awvalid,
+  input  awready,
+  // Wire Data
+  output wdata,
+  output wvalid,
+  input  wready,
+  // Write Response
+  output bready,
+  input  bvalid,
+  input  bresp,
+  // Read Address
+  output araddr,
+  output arvalid,
+  input  arready,
+  // Read data
+  input  rdata,
+  input  rvalid,
+  output rready
 );
 
 modport Slave (
-// Bus
-input  aclk,
-input  aresetn,
-// Wire Address
-input  awaddr,
-input  awvalid,
-output awready,
-// Wire Data
-input  wdata,
-input  wvalid,
-output wready,
-// Write Response
-output bvalid,
-output bresp,
-input  bready,
-// Read Address
-input  araddr,
-input  arvalid,
-output arready,
-// Read data
-output rdata,
-output rvalid,
-input  rready
+  // Bus
+  input  aclk,
+  input  aresetn,
+  // Wire Address
+  input  awaddr,
+  input  awvalid,
+  output awready,
+  // Wire Data
+  input  wdata,
+  input  wvalid,
+  output wready,
+  // Write Response
+  output bvalid,
+  output bresp,
+  input  bready,
+  // Read Address
+  input  araddr,
+  input  arvalid,
+  output arready,
+  // Read data
+  output rdata,
+  output rvalid,
+  input  rready
 );
 
 endinterface
