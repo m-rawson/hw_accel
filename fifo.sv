@@ -1,6 +1,8 @@
 // asynchronous fifo
+// only powers of two supported
 
 module fifo #(
+  parameter int PROG_SUPPORT=1,
   parameter int PROG_FULL_N=5,
   parameter int PROG_EMPTY_N=5,
   parameter int BUFF_DEPTH=1024,
@@ -21,8 +23,10 @@ module fifo #(
 );
 
 // addr pointers
-logic [$clog2(BUFF_DEPTH)-1:0] wr_addr, wr_addr_gray;
-logic [$clog2(BUFF_DEPTH)-1:0] rd_addr, rd_addr_gray;
+logic [$clog2(BUFF_DEPTH)-1:0] wr_addr, wr_addr_gray, wr_addr_gray_next, wr_addr_gray_sync;
+logic [$clog2(BUFF_DEPTH)-1:0] wr_addr_prog, wr_addr_gray_prog;
+logic [$clog2(BUFF_DEPTH)-1:0] rd_addr, rd_addr_gray, rd_addr_gray_sync;
+logic [$clog2(BUFF_DEPTH)-1:0] rd_addr_prog, rd_addr_gray_prog;
 
 // memory
 logic [BUFF_WORD-1:0] buff [BUFF_DEPTH-1:0];
@@ -73,6 +77,19 @@ assign empty = (rd_addr_gray == wr_addr_gray_sync);
 assign rd_addr_gray = rd_addr ^ (rd_addr>>1);
 assign wr_addr_gray = wr_addr ^ (wr_addr>>1);
 assign wr_addr_gray_next = (wr_addr+'b1) ^ ((wr_addr+'b1)>>1);
+
+always_comb begin
+  if(PROG_SUPPORT) begin
+    // wr clk domain
+	wr_addr_prog = wr_addr + PROG_FULL_N + 'b1; // plus 1 from non-prog case
+    wr_addr_gray_prog = wr_addr_prog ^ (wr_addr_prog>>1);
+    prog_full = (wr_addr_gray_prog == rd_addr_gray_sync);
+    // rd clk domain
+    rd_addr_prog = rd_addr + PROG_EMPTY_N;
+    rd_addr_gray_prog = rd_addr_prog ^ (rd_addr_prog>>1);
+    prog_empty = (rd_addr_gray_prog == wr_addr_gray_sync);
+  end
+end
 
 // CDC fifo status single bit signals
 multiflop_sync #(
