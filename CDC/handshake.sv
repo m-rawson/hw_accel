@@ -4,8 +4,9 @@ module handshake #(
   parameter int BITWIDTH=1
 )(
   input  wire wr_clk,
+  input  wire wr_rst,
   input  wire rd_clk,
-  input  wire rst,
+  input  wire rd_rst,
   Axis.Slave  wr_stream,
   Axis.Master rd_stream
 );

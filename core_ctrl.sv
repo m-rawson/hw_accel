@@ -8,10 +8,9 @@ module core_ctrl #(
   Axis.Master preproc_accel,
   Axi.Master  postproc_mem,
   Axis.Slave  postproc_accel,
-  input accel_core_pkg::MMAP_T mmap [accel_core_pkg::MMAP_DEPTH-1:0]
+  input [accel_core_pkg::MMAP_WIDTH-1:0] mmap [$bits(accel_core_pkg::MMAP_ADDR)-1:0],
+  core_wr2mmap.Master wr_mmap
 );
-
-
 
 
 accel_buffer #(
@@ -25,10 +24,10 @@ accel_buffer #(
   .mem_rst,
   .accel_clk,
   .accel_rst,
-  .input_buff_full,
-  .input_buff_empty,
-  .output_buff_full,
-  .output_buff_empty,
+  .input_buff_full(mmap[accel_core_pkg::INPUT_BUFF_FULL][0]),
+  .input_buff_empty(mmap[accel_core_pkg::INPUT_BUFF_EMPTY][0]),
+  .output_buff_full(mmap[accel_core_pkg::OUTPUT_BUFF_FULL][0]),
+  .output_buff_empty(mmap[accel_core_pkg::OUTPUT_BUFF_EMPTY][0]),
   .from_mem,
   .to_accel,
   .from_accel,
