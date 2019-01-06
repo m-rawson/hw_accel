@@ -1,6 +1,7 @@
 // full system architecture
 
 module accel_core #(
+  parameter int MEM_ADDR_WIDTH=16
 )(
   // IO to memory
   Axi.Slave   mem_bus,
@@ -9,12 +10,17 @@ module accel_core #(
   // hw accel control interface, could be NC if no control of hw accel
   Axi.Slave   accel_ctrl,
   // clk/rst for the datapath of the hw accel
-  input  wire stream_clk,
-  input  wire stream_rst
+  input  wire accel_clk,
+  input  wire accel_rst
 );
 
-Axi  preproc_data_port (.aclk(mem_bus.aclk), .aresetn(mem_bus.aresetn));
-Axi  postproc_data_port(.aclk(mem_bus.aclk), .aresetn(mem_bus.aresetn));
+Axi #(
+  .WDATA_WIDTH(MEM_ADDR_WIDTH), .RDATA_WIDTH(MEM_ADDR_WIDTH)
+) accel_mem_bus(
+  .aclk(mem_bus.aclk), 
+  .aresetn
+);
+
 Axis preproc_accel();
 Axis postproc_accel();
 
@@ -33,9 +39,8 @@ core_mem core_mem_i (
   .core_rst(~core_ctrl.aresetn),
   .mmap,
   // mem clk domain
-  .mem_bus, // Slave
-  .preproc_data_port, // Slave
-  .postproc_data_port // Slave
+  .user_mem_bus(mem_bus), // Slave
+  .accel_mem_bus // Slave
 );
 
 core_ctrl core_ctrl_i (
@@ -45,8 +50,9 @@ core_ctrl core_ctrl_i (
   .preproc_accel, // Master
   .postproc_accel, // Slave
   // mem clk
-  .preproc_mem  (preproc_data_port), // Master
-  .postproc_mem (postproc_data_port), // Master
+  .mem_clk(mem_bus.aclk),
+  .mem_rst(~mem_bus.aresetn),
+  .accel_mem_bus, // Master
   // ctrl clk domain
   .ctrl_clk(core_ctrl.aclk),
   .ctrl_rst(~core_ctrl.aresetn),
@@ -54,9 +60,9 @@ core_ctrl core_ctrl_i (
   .wr_mmap
 );
 
-hw_accel hw_accel_i(
-  .clk     (stream_clk),
-  .rst     (stream_rst),
+hw_accel accel_i(
+  .clk     (accel_clk),
+  .rst     (accel_rst),
   .stream_i(preproc_accel), // Slave
   .stream_o(postproc_accel), // Master
   .ctrl    (accel_ctrl)
